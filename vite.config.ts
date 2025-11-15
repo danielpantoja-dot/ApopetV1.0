@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
 export default defineConfig({
-  base: '/ApopetV1.0/', 
+  // CLAVE: Usamos ruta relativa para que funcione sin importar el subdirectorio.
+  base: './', 
   
   plugins: [react()],
   resolve: {
