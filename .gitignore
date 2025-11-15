@@ -1,0 +1,14 @@
+# Directorio de dependencias de Node.js
+/node_modules
+
+# Directorio de compilación de Vite
+/build 
+
+# Archivos de entorno y configuración sensible
+.env
+.env.local
+
+# Archivos de logs y caché de npm
+npm-debug.log*
+.DS_Store 
+.vite/
