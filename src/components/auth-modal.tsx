@@ -39,7 +39,6 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file
     if (!file.type.startsWith('image/')) {
       toast.error("Por favor selecciona solo imágenes");
       return;
@@ -52,7 +51,6 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
 
     setAvatarFile(file);
     
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setAvatarPreview(reader.result as string);
@@ -75,7 +73,6 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        // Login with Supabase
         const { data, error } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
@@ -93,12 +90,10 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
           return;
         }
 
-        // El hook useAuth manejará la autenticación automáticamente
         onLogin(data.user);
         toast.success("¡Bienvenido de vuelta!");
 
       } else {
-        // Registrar usuario con Supabase Auth
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
@@ -122,13 +117,11 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
           return;
         }
 
-        // Upload avatar if selected
         let avatarUrl = null;
         if (avatarFile) {
           avatarUrl = await upload(avatarFile, 'avatars', `avatar-${authData.user.id}-${Date.now()}`);
         }
 
-        // Crear perfil en la tabla profiles
         const { error: profileError } = await supabase
           .from('profiles')
           .insert([{
@@ -142,10 +135,9 @@ export function AuthModal({ onLogin, onClose }: AuthModalProps) {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // No lanzar error aquí, el perfil se puede crear después
         }
 
-        // Sign in automáticamente después del registro
+
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: formData.email,
           password: formData.password,
