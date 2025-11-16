@@ -1,16 +1,13 @@
 /**
  * QROptions Component
- * 
- * Sistema completo de generación y escaneo de códigos QR para mascotas
- * 
- * Features:
+ * * Sistema completo de generación y escaneo de códigos QR para mascotas
+ * * Features:
  * - Generación de QR con URL única por mascota
  * - Descarga del QR en alta calidad (PNG)
  * - Compartir QR por redes sociales
  * - Escaneo de QR con cámara
  * - Vista previa del perfil público
- * 
- * @component
+ * * @component
  */
 
 import { useState, useRef, useEffect } from "react";
@@ -45,16 +42,15 @@ export function QROptions({ petData, onNavigate }: QROptionsProps) {
 
   /**
    * Generar URL pública del perfil QR
-   * 
-   * IMPORTANTE: Esta URL debe coincidir con tu dominio de producción
-   * 
-   * CONFIGURACIÓN:
-   * - Producción (GitHub Pages): https://danielpantoja-dot.github.io/Apopet/
+   * * IMPORTANTE: Esta URL debe coincidir con tu dominio de producción
+   * * CONFIGURACIÓN:
+   * - Producción (GitHub Pages): https://danielpantoja-dot.github.io/ApopetV1.0/ <-- 🟢 CORREGIDO
    * - Desarrollo local: window.location.origin
    */
   const generatePublicURL = () => {
     // URL de producción en GitHub Pages
-    const PRODUCTION_URL = 'https://danielpantoja-dot.github.io/Apopet';
+    // 🛑 CAMBIO CLAVE: Usamos ApopetV1.0
+    const PRODUCTION_URL = 'https://danielpantoja-dot.github.io/ApopetV1.0';
     
     // Detectar si estamos en producción o desarrollo
     const isProduction = window.location.hostname.includes('github.io');
