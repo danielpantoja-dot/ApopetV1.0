@@ -31,7 +31,7 @@ import {
   LogIn,
   UserPlus,
   ArrowLeft,
-  Home // Ya estaba importado, ¡perfecto!
+  Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../utils/supabase/client";
@@ -109,7 +109,7 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
           .from('pets')
           .select(`
             *,
-            owner:user_profiles(id, name, phone, email, location, avatar)
+            owner:profiles(id, name, phone, email, location, avatar_url) // ⬅️ CORRECCIÓN DE LA TABLA Y EL CAMPO AVATAR
           `)
           .eq('id', petId)
           .single();
@@ -117,10 +117,17 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
         if (petError) throw petError;
         if (!petData) throw new Error("Mascota no encontrada");
 
+        // Adaptar los datos del owner
         const { owner: ownerProfile, ...petDetails } = petData;
 
+        // Mapear avatar_url a avatar para mantener consistencia con la interfaz OwnerProfileData
+        const adaptedOwnerProfile = {
+            ...ownerProfile,
+            avatar: ownerProfile.avatar_url // Usamos avatar_url de la DB
+        };
+        
         setPet(petDetails as PetProfileData);
-        setOwner(ownerProfile as OwnerProfileData);
+        setOwner(adaptedOwnerProfile as OwnerProfileData);
         
       } catch (err: any) {
         console.error("Error fetching pet profile:", err);
@@ -246,7 +253,7 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
       {/* Background Image Header */}
       <div className="relative h-[40vh] overflow-hidden">
         <img 
-          src={pet.image || '/placeholder-pet.png'} 
+          src={pet.image_url || '/placeholder-pet.png'} // Usar image_url de la DB
           alt={pet.name} 
           className="w-full h-full object-cover"
         />
