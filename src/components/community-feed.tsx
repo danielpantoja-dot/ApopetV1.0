@@ -103,7 +103,7 @@ export function CommunityFeed({
     }
   };
 
-  // 🆕 HANDLER PARA BORRAR COMENTARIOS
+  //handler para borrar comentarios
   const handleDeleteComment = async (commentId: string, postId: string) => {
     if (onDeleteComment) {
       await onDeleteComment(commentId, postId);
@@ -112,7 +112,7 @@ export function CommunityFeed({
     }
   };
 
-  // 🆕 HANDLER PARA BORRAR POSTS
+  //handler para borrar posts
   const handleDeletePost = async (postId: string) => {
     if (onDeletePost) {
       await onDeletePost(postId);
