@@ -12,9 +12,7 @@ interface PublicViewRouterProps {
   children: React.ReactNode;
 }
 
-// ⚠️ IMPORTANTE: Define el nombre de tu repositorio aquí.
-// Usamos 'Apopet' ya que es el nombre de tu subdirectorio en GitHub Pages.
-const REPO_NAME = 'Apopet';
+const REPO_NAME = 'ApopetV1.0';
 
 export function PublicViewRouter({ children }: PublicViewRouterProps) {
   const [publicPetId, setPublicPetId] = useState<string | null>(null);

@@ -6,11 +6,8 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // ==========================================================
-  // CLAVE: Usamos la ruta absoluta del repositorio para GitHub Pages
-  // Reemplaza 'Apopet' si el nombre de tu repositorio es diferente
-  base: '/Apopet/', 
-  // ==========================================================
+  base: '/ApopetV1.0/', 
+
   
   plugins: [react()],
   resolve: {
