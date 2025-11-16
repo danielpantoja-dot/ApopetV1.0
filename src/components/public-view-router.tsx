@@ -1,10 +1,8 @@
 /**
  * PublicViewRouter Component
- * 
- * Router para vistas públicas (sin autenticación)
+ * * Router para vistas públicas (sin autenticación).
  * Detecta rutas del tipo /pet/:id y muestra el perfil público
- * 
- * @component
+ * * @component
  */
 
 import { useEffect, useState } from 'react';
@@ -14,6 +12,10 @@ interface PublicViewRouterProps {
   children: React.ReactNode;
 }
 
+// ⚠️ IMPORTANTE: Define el nombre de tu repositorio aquí.
+// Usamos 'Apopet' ya que es el nombre de tu subdirectorio en GitHub Pages.
+const REPO_NAME = 'Apopet';
+
 export function PublicViewRouter({ children }: PublicViewRouterProps) {
   const [publicPetId, setPublicPetId] = useState<string | null>(null);
 
@@ -21,9 +23,17 @@ export function PublicViewRouter({ children }: PublicViewRouterProps) {
     // Detectar si estamos en una ruta pública /pet/:id
     const detectPublicRoute = () => {
       const path = window.location.pathname;
-      const petMatch = path.match(/^\/pet\/([a-f0-9-]{36})$/i);
+      
+      // La expresión regular busca:
+      // 1. (?:\\/${REPO_NAME})?: Hace que '/Apopet' sea opcional para que funcione en desarrollo local o en el entorno de GitHub Pages.
+      // 2. \\/pet\\/: Busca la parte '/pet/'.
+      // 3. ([a-f0-9-]{36})$: Captura el ID (UUID de 36 caracteres) al final de la ruta.
+      const regex = new RegExp(`(?:\\/${REPO_NAME})?\\/pet\\/([a-f0-9-]{36})$`, 'i');
+      
+      const petMatch = path.match(regex);
       
       if (petMatch && petMatch[1]) {
+        // petMatch[1] contendrá el ID de la mascota capturado por el Regex.
         setPublicPetId(petMatch[1]);
       } else {
         setPublicPetId(null);
