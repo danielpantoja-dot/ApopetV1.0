@@ -4,9 +4,13 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
+// https://vitejs.dev/config/
 export default defineConfig({
-  // CLAVE: Usamos ruta relativa para que funcione sin importar el subdirectorio.
-  base: './', 
+  // ==========================================================
+  // CLAVE: Usamos la ruta absoluta del repositorio para GitHub Pages
+  // Reemplaza 'Apopet' si el nombre de tu repositorio es diferente
+  base: '/Apopet/', 
+  // ==========================================================
   
   plugins: [react()],
   resolve: {
