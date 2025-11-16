@@ -31,7 +31,7 @@ import {
   LogIn,
   UserPlus,
   ArrowLeft,
-  Home // Ya estaba importado, ¡perfecto!
+  Home
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { supabase } from "../utils/supabase/client";
@@ -81,7 +81,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { user } = useAuth();
   
-  // Custom hook para el manejo de likes
   const { 
     currentLikes, 
     userLiked, 
@@ -89,38 +88,63 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
     sessionID 
   } = usePetLikes(petId, pet?.likes || 0);
 
-  /**
-   * Determina la URL base para navegación
-   * @type {string}
-   */
   const REPO_NAME = 'ApopetV1.0';
   const HOME_URL = window.location.origin + '/' + REPO_NAME + '/';
 
-
-  /**
-   * Carga los datos de la mascota y del dueño
-   */
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        // 1. Fetch Pet Data
+        // 1. Obtener mascota
         const { data: petData, error: petError } = await supabase
           .from('pets')
-          .select(`
-            *,
-            owner:user_profiles(id, name, phone, email, location, avatar)
-          `)
+          .select('*')
           .eq('id', petId)
           .single();
         
-        if (petError) throw petError;
-        if (!petData) throw new Error("Mascota no encontrada");
+        if (petError || !petData) throw new Error("Mascota no encontrada");
 
-        const { owner: ownerProfile, ...petDetails } = petData;
+        // 2. Obtener dueño por separado
+        const { data: ownerData, error: ownerError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', petData.owner_id)
+          .single();
 
-        setPet(petDetails as PetProfileData);
-        setOwner(ownerProfile as OwnerProfileData);
+        if (ownerError || !ownerData) {
+          throw new Error("Dueño no encontrado");
+        }
+
+        // Mapear datos
+        const petDetails: PetProfileData = {
+          id: petData.id,
+          name: petData.name,
+          species: petData.species as PetSpecies,
+          breed: petData.breed,
+          age: petData.age,
+          weight: petData.weight,
+          color: petData.color,
+          personality: petData.personality || [],
+          favoriteFood: petData.favorite_food,
+          favoriteToys: petData.favorite_toys || [],
+          vaccinated: petData.vaccinated,
+          microchip: petData.microchip,
+          image: petData.image_url,
+          likes: petData.likes_count || 0,
+          owner_id: petData.owner_id
+        };
+
+        const ownerDetails: OwnerProfileData = {
+          id: ownerData.id,
+          name: ownerData.name,
+          phone: ownerData.phone,
+          email: ownerData.email,
+          location: ownerData.location,
+          avatar: ownerData.avatar_url
+        };
+
+        setPet(petDetails);
+        setOwner(ownerDetails);
         
       } catch (err: any) {
         console.error("Error fetching pet profile:", err);
@@ -134,39 +158,24 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
     fetchProfile();
   }, [petId]);
 
-  /**
-   * Maneja el clic en el botón de Like
-   */
   const handleLikeClick = () => {
     if (user.isGuest) {
-      // Si el usuario es invitado, pide autenticación
       setShowAuthPrompt(true);
     } else {
-      // Usuario autenticado o sesión anónima (usando use-pet-likes hook)
       handleLikeToggle();
     }
   };
 
-  /**
-   * Maneja la apertura del modal de autenticación
-   */
   const handleOpenAuthModal = () => {
     setShowAuthPrompt(false);
     setShowAuthModal(true);
   };
 
-  /**
-   * Maneja el éxito de la autenticación
-   */
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    // Forzar recarga o redirección para aplicar el estado de usuario autenticado
     window.location.href = HOME_URL;
   };
 
-  /**
-   * Comparte el enlace del perfil
-   */
   const shareProfile = async () => {
     if (!pet) return;
 
@@ -182,7 +191,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
         await navigator.share(shareData);
         toast.success('Perfil compartido exitosamente');
       } else {
-        // Fallback: copiar al portapapeles
         await navigator.clipboard.writeText(shareUrl);
         toast.success('Enlace copiado al portapapeles');
       }
@@ -193,10 +201,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
       }
     }
   };
-
-  // ============================================
-  // ESTADOS DE CARGA Y ERROR
-  // ============================================
 
   if (loading) {
     return (
@@ -213,7 +217,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-rose-50 p-4 text-center">
         <div className="flex items-center justify-between p-4 bg-transparent fixed top-0 left-0 right-0 z-20">
-            {/* BOTÓN DE REGRESO CORREGIDO */}
             <a 
                 href={HOME_URL} 
                 className="bg-white/70 backdrop-blur-sm rounded-full text-gray-800 hover:bg-white p-2 transition-colors z-30 shadow-md flex items-center justify-center w-8 h-8"
@@ -221,7 +224,7 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
             >
                 <Home className="w-5 h-5" />
             </a>
-            <div className="w-8 h-8" /> {/* Spacer */}
+            <div className="w-8 h-8" />
         </div>
         <AlertCircle className="w-12 h-12 text-destructive mb-4" />
         <h1 className="text-xl font-bold text-gray-800 mb-2">Error al cargar el perfil</h1>
@@ -236,14 +239,9 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
     );
   }
   
-  // ============================================
-  // VISTA PRINCIPAL
-  // ============================================
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       
-      {/* Background Image Header */}
       <div className="relative h-[40vh] overflow-hidden">
         <img 
           src={pet.image || '/placeholder-pet.png'} 
@@ -251,12 +249,9 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
           className="w-full h-full object-cover"
         />
         
-        {/* Degradado para mejorar legibilidad del header */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 
-        {/* Header - Fixed to top */}
         <div className="flex items-center justify-between p-4 bg-transparent fixed top-0 left-0 right-0 z-20">
-            {/* BOTÓN DE REGRESO CORREGIDO */}
             <a 
                 href={HOME_URL} 
                 className="bg-white/50 backdrop-blur-sm rounded-full text-gray-800 hover:bg-white p-2 transition-colors z-30 shadow-md flex items-center justify-center w-8 h-8"
@@ -265,7 +260,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
                 <Home className="w-5 h-5" />
             </a>
             
-            {/* Share Button */}
             <Button
                 onClick={shareProfile}
                 variant="ghost"
@@ -278,13 +272,10 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
         </div>
       </div>
 
-      {/* Profile Content */}
       <div className="relative -top-10 px-4">
         
-        {/* Main Card */}
         <Card className="bg-white rounded-3xl shadow-2xl p-6 relative">
           
-          {/* Pet Header */}
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-3xl font-extrabold text-gray-900 leading-tight flex items-center">
@@ -296,7 +287,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
               <p className="text-sm text-gray-500">{pet.breed} • {pet.age}</p>
             </div>
             
-            {/* Like Button */}
             <div className="flex flex-col items-center">
               <Button
                 variant="outline"
@@ -314,7 +304,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
 
           <Separator className="my-4" />
 
-          {/* Owner Info */}
           <section className="mb-6">
             <h2 className="text-lg font-bold text-gray-700 mb-3 flex items-center">
               <UserPlus className="w-5 h-5 mr-2 text-[#6C63FF]" /> Dueño Responsable
@@ -335,7 +324,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
 
           <Separator className="my-4" />
 
-          {/* Pet Personality/Traits */}
           <section className="mb-6">
             <h2 className="text-lg font-bold text-gray-700 mb-3 flex items-center">
                 <PawPrint className="w-5 h-5 mr-2 text-[#FF6F61]" /> Acerca de {pet.name}
@@ -365,7 +353,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
 
           <Separator className="my-4" />
 
-          {/* Contact Info */}
           <section className="mb-4">
             <h2 className="text-lg font-bold text-gray-700 mb-3 flex items-center">
               <Phone className="w-5 h-5 mr-2 text-[#FFD166]" /> Contacto
@@ -384,7 +371,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
           
         </Card>
 
-        {/* Call to Action Card (Sticky on scroll) */}
         <Card className="fixed bottom-0 left-0 right-0 p-4 rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.1)] bg-white/95 backdrop-blur-md z-10">
           <Button
             onClick={handleLikeClick}
@@ -400,7 +386,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
           </p>
         </Card>
 
-        {/* Auth Prompt Modal */}
         <AnimatePresence>
           {showAuthPrompt && (
             <motion.div
@@ -464,7 +449,6 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
           )}
         </AnimatePresence>
 
-        {/* Modal de Autenticación Principal */}
         {showAuthModal && (
           <AuthModal 
             onLogin={handleAuthSuccess}
