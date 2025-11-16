@@ -1,17 +1,14 @@
 /**
  * PublicPetProfile Component
- * 
- * Vista pública del perfil de mascota accesible vía QR
+ * * Vista pública del perfil de mascota accesible vía QR
  * No requiere autenticación, permite dar likes a visitantes anónimos
- * 
- * Features:
+ * * Features:
  * - Carga datos públicos de la mascota
  * - Sistema de likes para visitantes
  * - Información de contacto del dueño
  * - Diseño optimizado para móvil
  * - Compartir perfil en redes sociales
- * 
- * @component
+ * * @component
  */
 
 import { useState, useEffect } from "react";
@@ -234,8 +231,9 @@ export function PublicPetProfile({ petId }: PublicPetProfileProps) {
    * Volver a Community Feed - Navegar a la página principal
    */
   const handleGoToCommunity = () => {
-    // Solución simple y robusta: Navegar a la raíz del sitio
-    window.location.href = window.location.origin + '/';
+    // ✅ CORRECCIÓN para GitHub Pages (Ruta base del repositorio)
+    const REPO_PATH = '/ApopetV1.0/'; 
+    window.location.href = window.location.origin + REPO_PATH;
   };
 
   /**
