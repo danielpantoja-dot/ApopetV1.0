@@ -61,7 +61,7 @@
     },
     "scripts": {
         "dev": "vite",
-        "postbuild": "cp build/index.html build/404.html",
+        "postbuild": "copy build\\index.html build\\404.html",
         "build": "vite build && npm run postbuild",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build"
